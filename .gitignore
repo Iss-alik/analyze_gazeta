@@ -1,0 +1,6 @@
+*.txt
+*.png
+text_files/
+recovered_text_files/
+pdf_files/
+__pycache__/
