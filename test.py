@@ -5,6 +5,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
 from collections import Counter
 from itertools import islice
+import os
 
 
 def filter_tokens(tokens, stop_words, punctuation):
@@ -19,31 +20,34 @@ stop_words = set(stopwords.words('russian'))
 punctuation = [',', '!', '?', '.', ':', ';', '-', '—', '_', '«', ')', '(', '»', '©']
 key_words = ['немец', 'гитлеровцы', 'месть', 'ненависть', 'училище', "офицеры", "Что"]
 
-file = open('0.txt', 'r', encoding="UTF-8")
-text = file.read().lower()
-file.close()
+path_to_dir = "recovered_text_files/"
+for file in os.listdir(path_to_dir):
+    document = open(f"{path_to_dir}/{file}", 'r')
 
-tokens = word_tokenize(text)
-#filtered_tokens = filter_tokens(tokens, stop_words, punctuation)
-filtered_tokens = [x for x in tokens if len(x) > 2]
-text = ' '.join([word for word in filtered_tokens])
+    text = document.read().lower()
+    document.close()
 
-words = Counter(filtered_tokens)
-dic = {}
-for key, value in words.items():
-    dic[key] = value
+    tokens = word_tokenize(text)
+    #filtered_tokens = filter_tokens(tokens, stop_words, punctuation)
+    filtered_tokens = [x for x in tokens if len(x) > 2]
+    text = ' '.join([word for word in filtered_tokens])
 
-# Сортируем словарь по значению в убывающем порядке
-sorted_dict = dict(sorted(dic.items(), key=lambda item: item[1], reverse=True))
+    words = Counter(filtered_tokens)
+    dic = {}
+    for key, value in words.items():
+        dic[key] = value
 
-x = 20  # количество элементов, которые нужно вывести
+    # Сортируем словарь по значению в убывающем порядке
+    sorted_dict = dict(sorted(dic.items(), key=lambda item: item[1], reverse=True))
 
-# Используем islice для взятия первых x элементов
-first_x_elements = dict(islice(sorted_dict.items(), x))
+    x = 20  # количество элементов, которые нужно вывести
 
-print(first_x_elements)
+    # Используем islice для взятия первых x элементов
+    first_x_elements = dict(islice(sorted_dict.items(), x))
 
-for key in key_words:
-    value = dic.get(key)  # используем get, чтобы избежать ошибки
-    if value is not None:
-        print(f"Ключ '{key}' имеет значение: {value}")
+    print(first_x_elements)
+
+    for key in key_words:
+        value = dic.get(key)  # используем get, чтобы избежать ошибки
+        if value is not None:
+            print(f"Ключ '{key}' имеет значение: {value}")
