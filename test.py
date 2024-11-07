@@ -6,19 +6,20 @@ import numpy as np
 from collections import Counter
 from itertools import islice
 import os
-
+from instructions import key_words
+from nltk.text import Text
 
 def filter_tokens(tokens, stop_words, punctuation):
     tokens = [word for word in tokens if word not in stop_words]
-    tokens = [word for word in tokens if word not in punctuation]
+    #tokens = [word for word in tokens if word not in punctuation]
     tokens = [stemmer.stem(word) for word in tokens]
     tokens = [x for x in tokens if len(x) > 2]
     return tokens 
 
+
 stemmer = SnowballStemmer("russian")
 stop_words = set(stopwords.words('russian'))
 punctuation = [',', '!', '?', '.', ':', ';', '-', '—', '_', '«', ')', '(', '»', '©']
-key_words = ['немец', 'гитлеровцы', 'месть', 'ненависть', 'училище', "офицеры", "Что"]
 
 path_to_dir = "recovered_text_files/"
 for file in os.listdir(path_to_dir):
@@ -28,8 +29,12 @@ for file in os.listdir(path_to_dir):
     document.close()
 
     tokens = word_tokenize(text)
-    #filtered_tokens = filter_tokens(tokens, stop_words, punctuation)
-    filtered_tokens = [x for x in tokens if len(x) > 2]
+
+    cla_text = Text(tokens, "fist.txt")
+    cla_text.common_contexts(["немец","враг"])
+
+    filtered_tokens = filter_tokens(tokens, stop_words, punctuation)
+    #filtered_tokens = [x for x in tokens if len(x) > 2]
     text = ' '.join([word for word in filtered_tokens])
 
     words = Counter(filtered_tokens)
@@ -47,6 +52,7 @@ for file in os.listdir(path_to_dir):
 
     print(first_x_elements)
 
+    key_words = [stemmer.stem(word) for word in key_words]
     for key in key_words:
         value = dic.get(key)  # используем get, чтобы избежать ошибки
         if value is not None:
