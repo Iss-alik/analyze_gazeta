@@ -1,6 +1,6 @@
 from gensim.models.wrappers import LdaMallet
 from gensim.models import LdaModel
-import logic
+import logic # кастомный файл 
 import os
 from gensim.corpora import Dictionary
 from gensim.models.coherencemodel import CoherenceModel
@@ -15,11 +15,9 @@ os.environ['MALLET_HOME'] = "C:/Users/nyni1/Desktop/Projects/Image_reader/mallet
 mallet_path = "C:/Users/nyni1/Desktop/Projects/Image_reader/mallet-2.0.8/bin/mallet.bat"
 
 #analyze_gazeta/
-folder_path = "./text_files/recovered/"
+folder_path = "./sample"
 
-num_topics = 9
-
-limit=20; start=2; step=2
+num_topics = 13
 
 # Функция для чтения всех текстовых файлов из папки
 def read_documents_from_folder(folder_path):
@@ -31,11 +29,10 @@ def read_documents_from_folder(folder_path):
                 text = file.read()
                 cleaned_text = logic.clean_text(text)
                 documents.append(cleaned_text)
-    return documents
+    return documents # Тут адаптиреутся исходный текст для анализа. Текст из файлов делиться на массив, где один документ одил элемент
 
-def preprocess(doc):
-    return [word for word in doc.split() if word.isalpha()]
 
+# Тут тоже не помню, надо у гпт спросить 
 def convertldaGenToldaMallet(mallet_model):
     model_gensim = LdaModel(
         id2word=mallet_model.id2word, num_topics=mallet_model.num_topics,
@@ -59,7 +56,7 @@ if __name__ == '__main__':
     corpus = [id2word.doc2bow(text) for text in tokenized_docs]
    
     Mallet_model = LdaMallet(mallet_path, corpus = corpus, num_topics = num_topics, id2word = id2word)
-
+    #Магия
 
 
     Lda_model = convertldaGenToldaMallet(Mallet_model)
@@ -71,12 +68,12 @@ if __name__ == '__main__':
         "id2word": id2word
     }
 
-    # Сохранение всех объектов в один файл
+    # Сохранение всех объектов в один файл что бы потом отдельным кодом все визуализировать, потому что зависимости паломаны 
     with open('lda_data.pkl', 'wb') as f:
         pickle.dump(data_to_save, f)
 
     # Number of topics to display
-    num_words = 10  # Number of words per topic to display
+    num_words = 15  # Number of words per topic to display
 
     print("Topics discovered by the LDA model:\n")
     for topic_id in range(num_topics):
