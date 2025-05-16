@@ -3,6 +3,9 @@ from nltk.tokenize import word_tokenize
 from pymystem3 import Mystem
 from instructions import stop_words
 import re
+import gensim
+
+
 
 # Делим текст на предложения 
 def split_text_into_tokens(text):
@@ -93,6 +96,14 @@ def clean_text(text):
     clean_text = " ".join(tokens)
 
     return clean_text
+
+
+def bigrmas(tokenized_documents):
+  bigram = gensim.models.Phrases(tokenized_documents, min_count= 5, threshold = 10)
+  bigram_mod = gensim.models.phrases.Phraser(bigram)
+  # Применяем к корпусу
+  texts_bigrams = [bigram_mod[doc] for doc in tokenized_documents]
+  return texts_bigrams
 
 def create_report(text):
   pass
