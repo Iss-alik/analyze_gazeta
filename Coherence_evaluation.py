@@ -14,20 +14,28 @@ os.environ['MALLET_HOME'] = "C:/Users/nyni1/Desktop/Projects/Image_reader/mallet
 mallet_path = "C:/Users/nyni1/Desktop/Projects/Image_reader/mallet-2.0.8/bin/mallet.bat"
 
 #analyze_gazeta/
-folder_path = "./text_files/recovered/"
+folder_path = "./sample"
 
-limit=15; start=8; step=1
+limit=15; start=3; step=1
+num_topics = 7; alpha = 50; interval = 0
 
 # Функция для чтения всех текстовых файлов из папки
 def read_documents_from_folder(folder_path):
     documents = []
+    counter = 0
     for file_name in os.listdir(folder_path):
         file_path = os.path.join(folder_path, file_name)
         if os.path.isfile(file_path) and file_name.endswith(".txt"):
-            with open(file_path, "r", encoding = 'utf8', errors='replace') as file:
-                text = file.read()
-                cleaned_text = logic.clean_text(text)
-                documents.append(cleaned_text)
+            try:
+                with open(file_path, "r", encoding="utf-8") as file:
+                    text = file.read()
+                    cleaned_text = logic.clean_text(text)
+                    documents.append(cleaned_text)
+            except Exception as e:
+                print(f"Error reading {file_name}: {e}")
+                counter += 1
+
+    print("Number of unreaded documents: ", counter)
     return documents
 
 def preprocess(doc):
@@ -61,7 +69,7 @@ def compute_coherence_values(dictionary, corpus, texts, limit, start=2, step=3):
     coherence_values = []
     model_list = []
     for num_topics in range(start, limit, step):
-        model = LdaMallet(mallet_path, corpus=corpus, num_topics=num_topics, id2word=id2word)
+        model = LdaMallet(mallet_path, corpus=corpus, num_topics = num_topics, id2word = id2word, alpha = alpha, optimize_interval = interval)
         model_list.append(model)
         coherencemodel = CoherenceModel(model=model, texts=texts, dictionary=dictionary, coherence='c_v')
         coherence_values.append(coherencemodel.get_coherence())
@@ -76,10 +84,13 @@ if __name__ == '__main__':
 
     tokenized_docs = [doc.split() for doc in docs] # В документах делаем токены
 
-    id2word = Dictionary(tokenized_docs)
+    bigrammed_tokenized_doc = logic.bigrmas(tokenized_docs)
+    trigrammed_tokenized_doc = logic.bigrmas(bigrammed_tokenized_doc)
+
+    id2word = Dictionary(trigrammed_tokenized_doc)
     # Term Document Frequency
-    corpus = [id2word.doc2bow(text) for text in tokenized_docs]
-    model_list, coherence_values = compute_coherence_values(dictionary=id2word, corpus=corpus, texts=tokenized_docs, start = start, limit = limit, step = step)
+    corpus = [id2word.doc2bow(text) for text in trigrammed_tokenized_doc ]
+    model_list, coherence_values = compute_coherence_values(dictionary=id2word, corpus=corpus, texts=trigrammed_tokenized_doc, start = start, limit = limit, step = step)
 
     # Show graph
     x = range(start, limit, step)

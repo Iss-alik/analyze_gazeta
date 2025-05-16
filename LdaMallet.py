@@ -17,7 +17,9 @@ mallet_path = "C:/Users/nyni1/Desktop/Projects/Image_reader/mallet-2.0.8/bin/mal
 #analyze_gazeta/
 folder_path = "./sample"
 
-num_topics = 13
+num_topics = 12
+aplha = 25
+interval = 10
 
 # Функция для чтения всех текстовых файлов из папки
 def read_documents_from_folder(folder_path):
@@ -42,6 +44,10 @@ def convertldaGenToldaMallet(mallet_model):
     model_gensim.sync_state()
     return model_gensim
 
+def calculate_coherence_value(model, texts, dictionary):
+    coherencemodel = CoherenceModel(model=model, texts=texts, dictionary=dictionary, coherence='c_v')
+    coherence_value = coherencemodel.get_coherence()
+    return coherence_value
 
 
 if __name__ == '__main__':
@@ -51,13 +57,17 @@ if __name__ == '__main__':
 
     tokenized_docs = [doc.split() for doc in docs] # В документах делаем токены
 
-    id2word = Dictionary(tokenized_docs)
+    bigrammed_tokenized_doc = logic.bigrmas(tokenized_docs)
+    trigrammed_tokenized_doc = logic.bigrmas(bigrammed_tokenized_doc)
+
+    id2word = Dictionary(trigrammed_tokenized_doc)
     # Term Document Frequency
-    corpus = [id2word.doc2bow(text) for text in tokenized_docs]
+    corpus = [id2word.doc2bow(text) for text in trigrammed_tokenized_doc]
    
-    Mallet_model = LdaMallet(mallet_path, corpus = corpus, num_topics = num_topics, id2word = id2word)
+    Mallet_model = LdaMallet(mallet_path, corpus = corpus, num_topics = num_topics, id2word = id2word, alpha=aplha, optimize_interval = interval)
     #Магия
 
+    coherence_value = calculate_coherence_value(Mallet_model, trigrammed_tokenized_doc, id2word)
 
     Lda_model = convertldaGenToldaMallet(Mallet_model)
     
@@ -80,5 +90,6 @@ if __name__ == '__main__':
         # Get the topic as a list of tuples (word, probability)
         topic = Lda_model.show_topic(topic_id, num_words)
         topic_words = ", ".join([f"{word} ({prob:.2f})" for word, prob in topic])
+        print("Coherence value: ", coherence_value)
         print(f"Topic {topic_id + 1}: {topic_words}\n")
 
