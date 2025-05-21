@@ -16,8 +16,8 @@ mallet_path = "C:/Users/nyni1/Desktop/Projects/Image_reader/mallet-2.0.8/bin/mal
 #analyze_gazeta/
 folder_path = "./sample"
 
-limit=15; start=3; step=1
-num_topics = 7; alpha = 50; interval = 0
+limit=51; start=10; step=5
+num_topics = 8; alpha = 50; interval = 10
 
 # Функция для чтения всех текстовых файлов из папки
 def read_documents_from_folder(folder_path):
@@ -68,7 +68,7 @@ def compute_coherence_values(dictionary, corpus, texts, limit, start=2, step=3):
     """
     coherence_values = []
     model_list = []
-    for num_topics in range(start, limit, step):
+    for alpha in range(start, limit, step):
         model = LdaMallet(mallet_path, corpus=corpus, num_topics = num_topics, id2word = id2word, alpha = alpha, optimize_interval = interval)
         model_list.append(model)
         coherencemodel = CoherenceModel(model=model, texts=texts, dictionary=dictionary, coherence='c_v')

@@ -1,10 +1,11 @@
 import os
 import re 
-from recover import recover
+from recover import *
 import logic
+import time
 
-# /analyze_gazeta
-path_to_dir = "./text_files/original/октябрь 44/"
+# /analyze_gazeta  март 45/
+path_to_dir = "./analyze_gazeta/text_files/original/февраль 45/"
 
 pattern = re.compile(r'[А-Яа-я0-9.,!? \n-]+')
 
@@ -34,10 +35,9 @@ def text_to_chunks2(path):
     chunks = []
 
     with open(path, "r", encoding="utf-8") as file:
-        all_text = "".join( pattern.findall(file.read()) )
-        tokens_of_chunk = logic.split_text_into_tokens(chunk)
-        chunks += logic.parts_to_chunks(parts = tokens_of_chunk, number_of_chunks = int(number_of_symbols/standart_size) + 1)
-
+        all_text = "".join( pattern.findall(file.read()))
+        tokens = logic.split_text_into_tokens(all_text)
+        chunks += logic.parts_to_chunks( parts = tokens, length_of_chunk = 400 )
 
     return chunks
 
@@ -46,16 +46,17 @@ for file in os.listdir(path_to_dir):
     # Достаем имя файла 
     file_name = file[0:-4] 
 
-    chunked_raw_text = text_to_chunks(path_to_dir + file)
+    chunked_raw_text = text_to_chunks2(path_to_dir + file)
     all_recovered_text= ""
 
 
     for chunk in chunked_raw_text:
-        recovered_chunk = recover(chunk)
+        recovered_chunk = recover2(chunk)
         all_recovered_text += recovered_chunk + "\n"
+        time.sleep(2)  # пауза между запросами
 
     try:
-        recovered = open(f'./text_files/recovered/{file_name}.txt', 'w', encoding = 'utf8')
+        recovered = open(f'./analyze_gazeta/text_files/recovered/{file_name}.txt', 'w', encoding = 'utf8')
         recovered.write(all_recovered_text)
         recovered.close() 
 

@@ -17,7 +17,7 @@ mallet_path = "C:/Users/nyni1/Desktop/Projects/Image_reader/mallet-2.0.8/bin/mal
 #analyze_gazeta/
 folder_path = "./sample"
 
-num_topics = 12
+num_topics = 10
 aplha = 25
 interval = 10
 

@@ -1,6 +1,5 @@
 import pickle
 import pyLDAvis
-import pyLDAvis.gensim
 import pyLDAvis.gensim_models as gensimvis
 
 with open('lda_data.pkl', 'rb') as f:
